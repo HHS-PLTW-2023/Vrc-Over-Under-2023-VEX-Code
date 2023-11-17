@@ -102,28 +102,28 @@ int subsystem()
 
 int buttonA()
 {
-    bool toggle = false
+    bool toggle = false;
 
-    if (controller1.ButtonA.Pressed())
+    if (Controller1.ButtonA.pressed())
     {
-        if (toggle = false)
+        if (toggle == false)
         {
             toggle = true;
         }
-        else if (toggle = true)
+        else if (toggle == true)
         {
             toggle = false;
         }
     }
 
 
-    if (toggle = false)
+    if (toggle == false)
     {
-        clawOpen()
+        clawOpen();
     }
-    else if (toggle = true)
+    else if (toggle == true)
     {
-        clawClosed()
+        clawClosed();
     }
 
 
