@@ -33,7 +33,7 @@ vex::motor LiftArmMotorB = motor(PORT10, ratio36_1, false); //right side
 vex::motor_group LiftArm = motor_group(LiftArmMotorA, LiftArmMotorB);
 
 //lift arm claw motor
-vex::motor Claw = motor(PORT15, ratio18_1, false);
+vex::motor Claw = motor(PORT13, ratio18_1, false);
 
 //push flap motors
 vex::motor PushArm = motor(PORT4, ratio18_1, false);
@@ -99,23 +99,33 @@ int subsystem()
 
     return 0;
 }
+
 int buttonA()
 {
+    bool toggle = false
 
-    bool buttonA = false;
-
-
-
-
-    //get true and false to open and close
-    if (buttonA == true)
+    if (controller1.ButtonA.Pressed())
     {
-        clawOpen();
+        if (toggle = false)
+        {
+            toggle = true;
+        }
+        else if (toggle = true)
+        {
+            toggle = false;
+        }
     }
-    else if (buttonA == false)
+
+
+    if (toggle = false)
     {
-        clawClosed();
+        clawOpen()
     }
+    else if (toggle = true)
+    {
+        clawClosed()
+    }
+
 
 }
 
@@ -131,6 +141,7 @@ int buttonA()
 
        
             // for the love of christ figure out how to toggle button 'A'
+            buttonA();
 
             // Allow other tasks to run
             this_thread::sleep_for(10);
