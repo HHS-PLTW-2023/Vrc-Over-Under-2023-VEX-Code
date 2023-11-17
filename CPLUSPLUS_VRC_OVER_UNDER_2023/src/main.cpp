@@ -29,7 +29,7 @@ vex::drivetrain Drivetrain = drivetrain(LeftDriveSmart, RightDriveSmart, 319.19,
 
 // lift arm motor group
 vex::motor LiftArmMotorA = motor(PORT9, ratio36_1, false); //left side
-vex::motor LiftArmMotorB = motor(PORT10, ratio36_1, true); //right side
+vex::motor LiftArmMotorB = motor(PORT10, ratio36_1, false); //right side
 vex::motor_group LiftArm = motor_group(LiftArmMotorA, LiftArmMotorB);
 
 //lift arm claw motor
@@ -98,6 +98,25 @@ int subsystem()
     }
 
     return 0;
+}
+int buttonA()
+{
+
+    bool buttonA = false;
+
+
+
+
+    //get true and false to open and close
+    if (buttonA == true)
+    {
+        clawOpen();
+    }
+    else if (buttonA == false)
+    {
+        clawClosed();
+    }
+
 }
 
     int whenStarted1(){ 
