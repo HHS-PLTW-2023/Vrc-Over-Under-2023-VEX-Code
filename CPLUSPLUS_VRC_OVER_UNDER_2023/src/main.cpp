@@ -6,9 +6,9 @@
 /*    Description:  V5 project                                                */
 /*                                                                            */
 /*    Motor ports:                                                            */
-/*    Drivetrain - left side 2, right side 3                                  */
-/*    Lift arms - left side 9, right side 10                                  */
-/*    Lift Arm Claw(s) -                                                      */
+/*    Drivetrain - left side port 2, right side port 3                        */
+/*    Lift arms - left side port 9, right side port 10                        */
+/*    Lift Arm Claw(s) - Port 8                                              */
 /*    Push arms - port 4                                                      */
 /*----------------------------------------------------------------------------*/
 #include "vex.h"
@@ -33,7 +33,7 @@ vex::motor LiftArmMotorB = motor(PORT10, ratio36_1, false); //right side
 vex::motor_group LiftArm = motor_group(LiftArmMotorA, LiftArmMotorB);
 
 //lift arm claw motor
-vex::motor Claw = motor(PORT13, ratio18_1, false);
+vex::motor Claw = motor(PORT8, ratio18_1, false);
 
 //push flap motors
 vex::motor PushArm = motor(PORT4, ratio18_1, false);
@@ -100,34 +100,7 @@ int subsystem()
     return 0;
 }
 
-int buttonA()
-{
-    bool toggle = false;
 
-    if (Controller1.ButtonA.pressed())
-    {
-        if (toggle == false)
-        {
-            toggle = true;
-        }
-        else if (toggle == true)
-        {
-            toggle = false;
-        }
-    }
-
-
-    if (toggle == false)
-    {
-        clawOpen();
-    }
-    else if (toggle == true)
-    {
-        clawClosed();
-    }
-
-
-}
 
     int whenStarted1(){ 
         Brain.Screen.printAt( 10, 50, "Im in so much pain... please end me" );
@@ -140,8 +113,9 @@ int buttonA()
             subsystem();
 
        
-            // for the love of christ figure out how to toggle button 'A'
-            buttonA();
+            // for the love of christ figure out how to toggle button 'A
+
+
 
             // Allow other tasks to run
             this_thread::sleep_for(10);
