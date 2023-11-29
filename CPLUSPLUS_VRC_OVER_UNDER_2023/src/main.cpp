@@ -19,20 +19,22 @@ using namespace vex;
 vex::brain       Brain;
 // define your global instances of motors and other devices here
 // controller 
-vex::controller Controller1 = controller(primary);
+vex::controller controller1 = controller(primary);
 
 // drivetrain motors
 vex::motor LeftDriveSmart = motor(PORT2, ratio18_1, false);
 vex::motor RightDriveSmart = motor(PORT3, ratio18_1, true);
 vex::drivetrain Drivetrain = drivetrain(LeftDriveSmart, RightDriveSmart, 319.19, 295, 40, mm, 1);
 
-// lift arm motor group
-vex::motor LiftArmMotorLF = motor(PORT9, ratio36_1, false); //left side green
-vex::motor LiftArmMotorRF = motor(PORT10, ratio36_1, true); //right side green 
-vex::motor LiftArmMotorLR = motor(PORT16, ratio36_1, false); //left side red
-vex::motor LiftArmMotorRR = motor(PORT17, ratio36_1, true); // right side red
-vex::motor_group LiftArmF = motor_group(LiftArmMotorLF, LiftArmMotorRF);
-vex::motor_group LiftArmR = motor_group(LiftArmMotorLR, LiftArmMotorRR);
+// lift arm motor groups
+vex::motor one = motor(PORT20, ratio36_1, false);
+vex::motor two = motor(PORT19, ratio36_1, true);
+vex::motor_group upper = motor_group(one, two);
+
+vex::motor three = motor(PORT9, ratio36_1, true);
+vex::motor four = motor(PORT10, ratio36_1, false);
+vex::motor_group lower = motor_group(three, four);
+
 //lift arm claw motor
 vex::motor Claw = motor(PORT8, ratio18_1, false);
 
@@ -40,11 +42,11 @@ vex::motor Claw = motor(PORT8, ratio18_1, false);
 vex::motor PushArm = motor(PORT4, ratio18_1, false);
 
 //variables 
-//claw states
+//claw states and code
+
 int clawOpen()
 {
-    Claw.spin(forward);
-    wait(50,msec);
+    Claw.spinFor(forward, 90, degrees);
     Claw.stop(hold);
     return 0;
 }
@@ -60,13 +62,13 @@ int clawClosed()
 int motorSettings()
 {
     //lift arm motor settings
-    LiftArmF.setVelocity(80, percent);
-    LiftArmF.setStopping(hold);
-    LiftArmF.setMaxTorque(100, percent);
+    upper.setVelocity(80, percent);
+    upper.setStopping(hold);
+    upper.setMaxTorque(100, percent);
 
-    LiftArmR.setVelocity(80, percent);
-    LiftArmR.setStopping(hold);
-    LiftArmR.setMaxTorque(100, percent);
+    lower.setVelocity(80, percent);
+    lower.setStopping(hold);
+    lower.setMaxTorque(100, percent);
 
     //push flap motor settings
     PushArm.setVelocity(80, percent);
@@ -75,64 +77,39 @@ int motorSettings()
     return 0;
 } 
 
-//lift motors forward
-int liftspinFF()
-{
-    LiftArmF.spin(forward);
-}
-int liftspinRF()
-{
-    LiftArmR.spin(forward);
-}
-//lift motors reverse
-int liftspinFR()
-{
-    LiftArmF.spin(reverse);
-}
-int liftspinRR()
-{
-    LiftArmR.spin(reverse);
-}
-int liftstopf()
-{
-    LiftArmF.stop();
-}
-int liftstopR()
-{
-    LiftArmR.stop();
-}
-
 //subsystem code
 int subsystem()
 {
     //Push flap arm code
     //push l1 to open arms, pushh l2 to close arms, otherwise stop and hold position
-    if (Controller1.ButtonL1.pressing()){
+    if (controller1.ButtonL1.pressing()){
         PushArm.spin(forward);
     }
-    else if (Controller1.ButtonL2.pressing()){
+    else if (controller1.ButtonL2.pressing()){
         PushArm.spin(reverse);
     }
-    else if (not Controller1.ButtonL1.pressing() or Controller1.ButtonL2.pressing()){
+    else if (not controller1.ButtonL1.pressing() or controller1.ButtonL2.pressing()){
         PushArm.stop();
     }
 
     //Lift Arm code
-    //push R1 to raise arms, and push R2 to lower arms, otherwise stop and hold position
-
-    //try to make the lift arm motor sets into a function
-    if (Controller1.ButtonR1.pressing()){
-        liftspinFF and liftspinRF;
+    if (controller1.ButtonR2.pressing()){
+        upper.spin(forward); 
+        lower.spin(forward);
     }
-    else if (Controller1.ButtonR2.pressing()){
-        liftspinFR and liftspinRR;
-    }  
-    else if (not Controller1.ButtonR1.pressing() or Controller1.ButtonR2.pressing()){
-        liftstopf and liftstopR; 
+    else if (controller1.ButtonR1.pressing()){
+        upper.spin(reverse);
+        lower.spin(reverse);
+    }
+    else {
+        upper.stop(hold);
+        lower.stop(hold);
     }
     return 0;
-    
 }
+    
+
+    
 
 
 
