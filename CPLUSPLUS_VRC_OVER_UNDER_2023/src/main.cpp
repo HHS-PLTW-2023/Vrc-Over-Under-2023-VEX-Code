@@ -73,6 +73,33 @@ int motorSettings()
     PushArm.setMaxTorque(100, percent);
     PushArm.setStopping(hold);
     return 0;
+} 
+
+//lift motors forward
+int liftspinFF()
+{
+    LiftArmF.spin(forward);
+}
+int liftspinRF()
+{
+    LiftArmR.spin(forward);
+}
+//lift motors reverse
+int liftspinFR()
+{
+    LiftArmF.spin(reverse);
+}
+int liftspinRR()
+{
+    LiftArmR.spin(reverse);
+}
+int liftstopf()
+{
+    LiftArmF.stop();
+}
+int liftstopR()
+{
+    LiftArmR.stop();
 }
 
 //subsystem code
@@ -92,16 +119,19 @@ int subsystem()
 
     //Lift Arm code
     //push R1 to raise arms, and push R2 to lower arms, otherwise stop and hold position
+
+    //try to make the lift arm motor sets into a function
     if (Controller1.ButtonR1.pressing()){
-        LiftArmF.spin(forward);
+        liftspinFF and liftspinRF;
     }
     else if (Controller1.ButtonR2.pressing()){
-        LiftArmF.spin(reverse);
-    }
+        liftspinFR and liftspinRR;
+    }  
     else if (not Controller1.ButtonR1.pressing() or Controller1.ButtonR2.pressing()){
-        LiftArmF.stop();
+        liftstopf and liftstopR; 
     }
     return 0;
+    
 }
 
 
