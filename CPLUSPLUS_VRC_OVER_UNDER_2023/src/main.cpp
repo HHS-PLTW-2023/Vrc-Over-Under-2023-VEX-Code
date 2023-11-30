@@ -1,16 +1,16 @@
-/*----------------------------------------------------------------------------*/
-/*                                                                            */
-/*    Module:       main.cpp                                                  */
-/*    Author:       Travis R. Gray                                            */
-/*    Created:      11/15/2023, 9:46:29 AM                                    */
-/*    Description:  V5 project                                                */
-/*                                                                            */
-/*    Motor ports:                                                            */
-/*    Drivetrain - left side port 2, right side port 3                        */
+/*-----------------------------------------------------------------------------------------------------*/
+/*                                                                                                     */
+/*    Module:       main.cpp                                                                           */
+/*    Author:       Travis R. Gray                                                                     */
+/*    Created:      11/15/2023, 9:46:29 AM                                                             */
+/*    Description:  V5 project                                                                         */
+/*                                                                                                     */
+/*    Motor ports:                                                                                     */
+/*    Drivetrain - left side port 2, right side port 3                                                 */
 /*    Lift arms - left side G port 9, right side G port 10, left side R port 19, right side R port 20  */
-/*    Lift Arm Claw(s) - Port 8                                              */
-/*    Push arms - port 4                                                      */
-/*----------------------------------------------------------------------------*/
+/*    Lift Arm Claw(s) - Port 8                                                                        */
+/*    Push arms - port 4                                                                               */
+/*-----------------------------------------------------------------------------------------------------*/
 #include "vex.h"
 
 using namespace vex;
