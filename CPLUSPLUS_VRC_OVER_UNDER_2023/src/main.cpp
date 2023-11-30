@@ -33,14 +33,14 @@ vex::drivetrain Drivetrain = drivetrain(LeftDriveSmart, RightDriveSmart, 319.19,
 //assigning motor(s) to ports 9, 10, 19, and 20 for two motor groups used to control the lift arm. 
 // lift arm motor groups
 //upper section (claw side) motor group
-vex::motor one = motor(PORT20, ratio36_1, false);
-vex::motor two = motor(PORT19, ratio36_1, true);
-vex::motor_group upper = motor_group(one, two);
+vex::motor upper_right = motor(PORT20, ratio36_1, false);
+vex::motor upper_left = motor(PORT19, ratio36_1, true);
+vex::motor_group upper = motor_group(upper_right, upper_left);
 
 //lower section (base side) motor group
-vex::motor three = motor(PORT9, ratio36_1, true);
-vex::motor four = motor(PORT10, ratio36_1, false);
-vex::motor_group lower = motor_group(three, four);
+vex::motor lower_left = motor(PORT9, ratio36_1, true);
+vex::motor lower_right = motor(PORT10, ratio36_1, false);
+vex::motor_group lower = motor_group(lower_left, lower_right);
 //
 
 //assigning motor(s) to port 8 for the claw on top of the lift arm
