@@ -45,7 +45,7 @@ vex::motor_group lower = motor_group(lower_left, lower_right);
 
 //assigning motor(s) to port 8 for the claw on top of the lift arm
 //lift arm claw motor
-vex::motor Claw = motor(PORT8, ratio18_1, false);
+vex::motor Claw = motor(PORT8, ratio18_1, true);
 // 
 
 // assigning motor(s) to port 4 for the push flaps on the front of the bot 
@@ -55,23 +55,6 @@ vex::motor PushArm = motor(PORT4, ratio18_1, false);
 
 //motor setting tweaking, and function writing to call later in code
 //this is where the majority of the code functions
-//claw states and code
-
-//Not yet implemented //
-int clawOpen()
-{
-    Claw.spinFor(forward, 90, degrees);
-    Claw.stop(hold);
-    return 0;
-}
-int clawClosed()
-{
-    Claw.spin(reverse);
-    wait(50,msec);
-    Claw.stop(hold);
-    return 0;
-}
-//Not yet implemented //
 
 //settings for the upper, lower, and push arm motors
 //motor settings
@@ -90,6 +73,10 @@ int motorSettings()
     PushArm.setVelocity(80, percent);
     PushArm.setMaxTorque(100, percent);
     PushArm.setStopping(hold);
+
+    //claw motor settings
+    Claw.setVelocity(80, percent);
+    Claw.setMaxTorque(100, percent);
     return 0;
 } 
 
@@ -106,7 +93,7 @@ int subsystem()
         PushArm.spin(reverse);
     }
     else if (not controller1.ButtonL1.pressing() or controller1.ButtonL2.pressing()){
-        PushArm.stop();
+        PushArm.stop(hold);
     }
 
     //Lift Arm control code
@@ -123,6 +110,19 @@ int subsystem()
         upper.stop(hold);
         lower.stop(hold);
     }
+
+    //claw controle code
+    if (controller1.ButtonX.pressing())
+    {
+        Claw.setPosition(0,degrees);
+        Claw.spinToPosition(275, degrees,false);
+    }        
+    if (controller1.ButtonB.pressing())
+    {
+        Claw.setPosition(0,degrees);
+        Claw.spinToPosition(-275, degrees,false);
+    }      
+
     return 0;
 }
     
