@@ -1,0 +1,19 @@
+{
+	"extension": {
+		"version": "0.5.0",
+		"json": 2
+	},
+	"project": {
+		"name": "Vrc_Over_Under_2023",
+		"description": "Code written by Travis Gray  Bot built and designed by the following: Elijah walker, christopher canady, gabrielle courts, elijah lancaster, JJ watts (?)",
+		"creationDate": "11/5/2023, 9:46:29 AM",
+		"platform": "V5",
+		"language": "cpp",
+		"slot": 3,
+		"sdkVersion": "V5_20220726_10_00_00",
+		"cpp": {
+			"includePath": [],
+			"printf_float": true
+		}
+	}
+}

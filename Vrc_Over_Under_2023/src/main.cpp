@@ -3,13 +3,13 @@
 /*    Module:       main.cpp                                                                           */
 /*    Author:       Travis R. Gray                                                                     */
 /*    Created:      11/15/2023, 9:46:29 AM                                                             */
-/*    Description:  V5 project                                                                         */
+/*    Description:                                                                                     */
 /*                                                                                                     */
 /*    Motor ports:                                                                                     */
-/*    Drivetrain - left side port 2, right side port 3                                                 */
-/*    Lift arms - left side G port 9, right side G port 10, left side R port 19, right side R port 20  */
+/*    Drivetrain - Left side port 2, Right side port 3                                                 */
+/*    Lift arms - Lower left port 9, lower right port 10, upper left port 19, upper right port 20      */
 /*    Lift Arm Claw(s) - Port 8                                                                        */
-/*    Push arms - port 4                                                                               */
+/*    Push arms - Port 4                                                                               */
 /*-----------------------------------------------------------------------------------------------------*/
 #include "vex.h"
 
