@@ -25,6 +25,8 @@ vex::controller controller1 = controller(primary);
 //
 
 // assigning motors to port 2 and 3 for smart drivetrain system
+vex::motor leftd = motor(PORT2, ratio18_1, true);
+vex::motor rightd = motor(PORT3, ratio18_1, false);
 
 //
 
@@ -120,7 +122,8 @@ int subsystem()
     }
 
     // Drivetrain Code
-    
+    leftd.spin(fwd, controller1.Axis3.value(), pct);
+    rightd.spin(fwd, controller1.Axis2.value(), pct);
     return 0;
 }
 
