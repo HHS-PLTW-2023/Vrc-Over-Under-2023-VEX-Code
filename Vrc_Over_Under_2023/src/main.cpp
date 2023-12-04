@@ -25,9 +25,7 @@ vex::controller controller1 = controller(primary);
 //
 
 // assigning motors to port 2 and 3 for smart drivetrain system
-vex::motor leftD = motor(PORT11, ratio18_1, false);
-vex::motor rightD = motor(PORT3, ratio18_1, true);
-vex::drivetrain Drivetrain = drivetrain(leftD, rightD);
+
 //
 
 // assigning motor(s) to ports 9, 10, 19, and 20 for two motor groups used to control the lift arm.
@@ -51,13 +49,9 @@ vex::motor Claw = motor(PORT8, ratio18_1, true);
 // push flap motors
 vex::motor PushArm = motor(PORT4, ratio18_1, false);
 //
-//recording numbers from controller axis
-
 
 // motor setting tweaking, and function writing to call later in code
 // this is where the majority of the code functions
-
-
 
 // settings for the upper, lower, and push arm motors
 // motor settings
@@ -93,7 +87,7 @@ int subsystem()
     {
         PushArm.spin(reverse);
     }
-    else if (not controller1.ButtonL1.pressing() or controller1.ButtonL2.pressing())
+    else 
     {
         PushArm.stop(hold);
     }
@@ -113,7 +107,7 @@ int subsystem()
         liftarm.stop(hold);
     }
 
-    // claw control code
+    // claw controle code
     if (controller1.ButtonX.pressing())
     {
         Claw.setPosition(0, degrees);
@@ -127,23 +121,22 @@ int subsystem()
 
     // Drivetrain Code
     
-
     return 0;
 }
 
 // this is the when started function that runs in main when the thing starts
 int whenStarted1()
 {
-    Brain.Screen.printAt(10, 50, "Is this thing on?");
+    Brain.Screen.printAt(10, 50, "did i download properly?");
 
     // allows for user control by making a continuous loop that will run forever (implement killswitch?)
-    while (1)
+    while (true)
     {
-        if (controller1.ButtonL2.pressing()){
-            Drivetrain.drive(fwd);
-        }
         // call motor settings
+        motorSettings();
         // call subsystems
+        subsystem();
+
         // Allow other tasks to run
     }
 }
