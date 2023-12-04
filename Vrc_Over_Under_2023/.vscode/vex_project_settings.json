@@ -5,7 +5,7 @@
 	},
 	"project": {
 		"name": "Vrc_Over_Under_2023",
-		"description": "Code written by Travis Gray  Bot built and designed by the following: Elijah walker, christopher canady, gabrielle courts, elijah lancaster, JJ watts (?)",
+		"description": "Drivetrain: 2&3; lift arm ll9, lr10, ul19, ur20; Claw: 8; Push flap: 4 ",
 		"creationDate": "11/5/2023, 9:46:29 AM",
 		"platform": "V5",
 		"language": "cpp",
