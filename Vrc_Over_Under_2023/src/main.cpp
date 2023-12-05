@@ -11,6 +11,7 @@
 /*    Lift Arm Claw(s) - Port 8                                                                        */
 /*    Push arms - Port 4                                                                               */
 /*-----------------------------------------------------------------------------------------------------*/
+//Drivetrain: l2, r3; LiftArm: ll9, lr10, ul19, ur20; Claw: 8; PushArm: 4
 #include "vex.h"
 
 using namespace vex;
@@ -22,13 +23,10 @@ vex::brain Brain;
 // this section assigns motors to ports and assigns motor groups plus the control link for the controller
 // controller
 vex::controller controller1 = controller(primary);
-//
 
 // assigning motors to port 2 and 3 for smart drivetrain system
 vex::motor leftd = motor(PORT2, ratio18_1, true);
 vex::motor rightd = motor(PORT3, ratio18_1, false);
-
-//
 
 // assigning motor(s) to ports 9, 10, 19, and 20 for two motor groups used to control the lift arm.
 //  lift arm motor groups
@@ -75,12 +73,37 @@ int motorSettings()
     return 0;
 }
 
-// functions for the various subsystems' code
-// subsystem code
-int subsystem()
+//functions for autonomous period
+const float pi = 3.14159;
+const float wheel_diameter = 4.125;
+const float wheel_circumference = pi * wheel_diameter;
+const float gear_ratio = 2;
+const int auton_drive_pct = 65;
+
+void drive_forward (float inches ) 
+{
+    float inch_per_degree = wheel_circumference/360;
+    float degrees = inches/inch_per_degree;
+
+    leftd.spinFor(degrees*gear_ratio, vex::rotationUnits::deg, auton_drive_pct, vex::velocityUnits::pct, false);
+    rightd.spinFor(degrees*gear_ratio, vex::rotationUnits::deg, auton_drive_pct, vex::velocityUnits::pct, false);
+    
+    wait(1, sec);
+}
+
+
+void autonomous ()
+{
+    drive_forward (1 * 12);
+    drive_forward (-1 * 12);
+}
+
+// functions for the various User_Controls' code
+// User_Control code
+int User_Control()
 {
     // Push flap arm control code
-    // push l1 to open arms, pushh l2 to close arms, otherwise stop and hold position
+    // push l1 to open arms, push l2 to close arms, otherwise stop and hold position
     if (controller1.ButtonL1.pressing())
     {
         PushArm.spin(forward);
@@ -130,15 +153,18 @@ int subsystem()
 // this is the when started function that runs in main when the thing starts
 int whenStarted1()
 {
-    Brain.Screen.printAt(10, 50, "did i download properly?");
+    Brain.Screen.printAt(10, 50, "test 6");
+    
+    //call autonomous
 
     // allows for user control by making a continuous loop that will run forever (implement killswitch?)
     while (true)
     {
         // call motor settings
         motorSettings();
-        // call subsystems
-        subsystem();
+
+        // call User_Controls
+        User_Control();
 
         // Allow other tasks to run
     }
