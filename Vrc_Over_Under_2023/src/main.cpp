@@ -25,8 +25,8 @@ vex::brain Brain;
 vex::controller controller1 = controller(primary);
 
 // assigning motors to port 2 and 3 for smart drivetrain system
-vex::motor leftd = motor(PORT2, ratio18_1, true);
-vex::motor rightd = motor(PORT3, ratio18_1, false);
+vex::motor leftd = motor(PORT16, ratio18_1, false);
+vex::motor rightd = motor(PORT17, ratio18_1, true);
 
 // assigning motor(s) to ports 9, 10, 19, and 20 for two motor groups used to control the lift arm.
 //  lift arm motor groups
@@ -57,6 +57,15 @@ vex::motor PushArm = motor(PORT4, ratio18_1, false);
 // motor settings
 int motorSettings()
 {
+    //drivetrain
+    leftd.setMaxTorque(100, pct);
+    leftd.setVelocity(50, pct);
+    leftd.setBrake(hold);
+
+    rightd.setMaxTorque(100, pct);
+    rightd.setVelocity(50, pct);
+    rightd.setBrake(hold);
+
     // lift arm motor settings
     liftarm.setVelocity(80, percent);
     liftarm.setStopping(hold);
@@ -75,10 +84,12 @@ int motorSettings()
 
 //functions for autonomous period
 const float pi = 3.14159;
-const float wheel_diameter = 4.125;
+const float wheel_diameter = 4;
 const float wheel_circumference = pi * wheel_diameter;
-const float gear_ratio = 2;
-const int auton_drive_pct = 65;
+const float gear_ratio = 0.5;
+const float wheel_base_width = 19; //radius for finding arc length 
+const float wheel_base_diameter = 26.870057685;
+const int auton_drive_pct = 25;
 
 void drive_forward (float inches ) 
 {
@@ -91,11 +102,43 @@ void drive_forward (float inches )
     wait(1, sec);
 }
 
+void turn_left (float degrees)
+{
+    rightd.setReversed(true);
+
+    const float wheel_travel_length = ((degrees/360)*2*(3.1415)*(wheel_base_width));
+    const float motor_spin_degrees = (((wheel_travel_length/wheel_circumference)*360)/2);
+
+    leftd.spinFor(motor_spin_degrees, vex::rotationUnits::deg, auton_drive_pct, vex::velocityUnits::pct, false);
+    rightd.spinFor(motor_spin_degrees, vex::rotationUnits::deg, auton_drive_pct, vex::velocityUnits::pct, false);
+
+
+    wait(1, sec);
+
+}
+
+void turn_right (float degrees)
+{
+    rightd.setReversed(true);
+    //Arc Length = (θ/360) x 2πr
+    const float wheel_travel_length = ((degrees/360)*2*(3.1415)*(wheel_base_width));
+    const float motor_spin_degrees = (((wheel_travel_length/wheel_circumference)*360)/2);
+
+    leftd.spinFor(motor_spin_degrees, vex::rotationUnits::deg, auton_drive_pct, vex::velocityUnits::pct, false);
+    rightd.spinFor(motor_spin_degrees, vex::rotationUnits::deg, auton_drive_pct, vex::velocityUnits::pct, false);
+    
+
+    wait(1, sec);
+
+}
+
 
 void autonomous ()
 {
-    drive_forward (1 * 12);
-    drive_forward (-1 * 12);
+    drive_forward(0.5*12);
+    drive_forward(-0.5*12);
+    turn_left(90);
+    turn_right(90);
 }
 
 // functions for the various User_Controls' code
@@ -153,15 +196,22 @@ int User_Control()
 // this is the when started function that runs in main when the thing starts
 int whenStarted1()
 {
-    Brain.Screen.printAt(10, 50, "test 6");
     
+    Brain.Screen.print("test 10");
+    
+    // call motor settings
+    motorSettings();
+
     //call autonomous
+    autonomous();
+
+    leftd.setReversed(false);
+    rightd.setReversed(true);
 
     // allows for user control by making a continuous loop that will run forever (implement killswitch?)
     while (true)
     {
-        // call motor settings
-        motorSettings();
+    
 
         // call User_Controls
         User_Control();
