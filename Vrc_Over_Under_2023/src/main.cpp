@@ -94,23 +94,23 @@ double inch_per_degree = wheel_circumference/360;
 
 //Start of PID algorithm
 //settings
-double kP = 0.3;
-double kI = 0.2;
-double kD = 0.1;
+double kP = 0.000003;
+double kI = 0.000002;
+double kD = 0.000001;
 double turnkP = 0.3;
 double turnkI = 0.2;
 double turnkD = 0.1;
 
 //autonomous settings
-double desiredValue = 200;
+double setpoint = 200;
 double desiredTurnValue = 0;
 
-double error; //sensorValue - desiredValue : position
+double error; //sensorValue - setpoint : position
 double prevError = 0; // position 20 msecs ago
 double derivitive; // error - prevError : speed
 double totalError = 0; // totalError = totalError + error
 
-double turnerror; //sensorValue - desiredValue : position
+double turnerror; //sensorValue - setpoint : position
 double turnprevError = 0; // position 20 msecs ago
 double turnderivitive; // error - prevError : speed
 double turntotalError = 0; // totalError = totalError + error
@@ -132,8 +132,8 @@ int drivePID()
         if (resetEncoders)
         {
             resetEncoders = false;
-            leftd.setPosition(0, deg);
-            rightd.setPosition(0, deg);
+            leftEnc.setPosition(0, deg);
+            rightEnc.setPosition(0, deg);
         }
 
 
@@ -146,21 +146,21 @@ int drivePID()
         ///////////////////////////////////
 
         //average of the two motors
-        double whlPositionAverage = (leftWhlPosition + rightWhlPosition) / 2;
+        double whlPositionAverage = (leftWhlPosition + (-rightWhlPosition)) / 2;
 
         //converting desired value (inches), into degrees needed to turn 
-        double desiredDegrees = (desiredValue/inch_per_degree);
+        double desiredDegrees = (setpoint/inch_per_degree);
 
         //potential
-        error = whlPositionAverage - desiredDegrees;
+        error = desiredDegrees - whlPositionAverage;
 
         //derivitive 
-        derivitive = error - prevError;
+        derivitive = prevError - error;
 
         //integral (not best for drivetrain)
-        //totalError += error;
+        //totalError = totalError + error;
 
-        double lateralMotorPower = (error * kP + derivitive * kD) / 12; 
+        double lateralMotorPower = (error * kP + derivitive * kD ) / 12; 
         // + totalError * kI (for integral, bad for drivetrain but makes the small changes,
         // helps steady state errors)
 
@@ -174,7 +174,7 @@ int drivePID()
         //potential
         turnerror = turnDifference - desiredTurnValue;
 
-        //derivitive 
+        //dervitive 
         turnderivitive = turnerror - turnprevError;
 
         //integral
@@ -185,7 +185,7 @@ int drivePID()
 
         ///////////////////////////////////
         leftd.spin(fwd, lateralMotorPower + turnMotorPower, voltageUnits::volt);
-        rightd.spin(fwd, lateralMotorPower - turnMotorPower, voltageUnits::volt);
+        rightd.spin(fwd, lateralMotorPower + turnMotorPower, voltageUnits::volt);
     
 
         prevError = error;
@@ -206,8 +206,7 @@ void autonomous ()
     Brain.Screen.print(whlPositionAverage);
 
     resetEncoders = true;
-    desiredValue = 3;
-    desiredTurnValue = 6;
+    setpoint = 60;
 
     Brain.Screen.print("----");
     Brain.Screen.print(whlPositionAverage);
@@ -269,11 +268,13 @@ int User_Control()
 int whenStarted1()
 {
     
-    Brain.Screen.print("test c");
+    Brain.Screen.print("test PID.00.2");
     Brain.Screen.print("-----");
     
     // call motor settings
     motorSettings();
+
+    resetEncoders = true;
 
     //call autonomous
     autonomous();
