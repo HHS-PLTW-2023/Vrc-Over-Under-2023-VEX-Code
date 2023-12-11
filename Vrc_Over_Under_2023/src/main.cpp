@@ -5,6 +5,8 @@
 /*    Created:      11/15/2023, 9:46:29 AM                                                             */
 /*    Description:                                                                                     */
 /*                                                                                                     */
+/*       https://api.vexcode.cloud/v5/                                                                 */
+/*                                                                                                     */
 /*    Motor ports:                                                                                     */
 /*    Drivetrain - Left side port 2, Right side port 3                                                 */
 /*    Lift arms - Lower left port 9, lower right port 10, upper left port 19, upper right port 20      */
@@ -16,7 +18,7 @@
 
 using namespace vex;
 
-// A global instance of vex::brain used for printing to the V5 brain screen
+// A global instance of vex::brain used for prdoubleing to the V5 brain screen
 vex::brain Brain;
 
 // define your global instances of motors and other devices here
@@ -48,6 +50,9 @@ vex::motor Claw = motor(PORT8, ratio18_1, true);
 // assigning motor(s) to port 4 for the push flaps on the front of the bot
 // push flap motors
 vex::motor PushArm = motor(PORT4, ratio18_1, false);
+
+vex::encoder rightEnc = encoder(Brain.ThreeWirePort.A);
+vex::encoder leftEnc = encoder(Brain.ThreeWirePort.G);
 //
 
 // motor setting tweaking, and function writing to call later in code
@@ -55,7 +60,7 @@ vex::motor PushArm = motor(PORT4, ratio18_1, false);
 
 // settings for the upper, lower, and push arm motors
 // motor settings
-int motorSettings()
+double motorSettings()
 {
     //drivetrain
     leftd.setMaxTorque(100, pct);
@@ -82,63 +87,130 @@ int motorSettings()
     return 0;
 }
 
-//functions for autonomous period
-const float pi = 3.14159;
-const float wheel_diameter = 4;
-const float wheel_circumference = pi * wheel_diameter;
-const float gear_ratio = 0.5;
-const float wheel_base_width = 19; //radius for finding arc length 
-const float wheel_base_diameter = 26.870057685;
-const int auton_drive_pct = 25;
+const double pi = 3.14159;
+const double wheel_diameter = 4.135;
+const double wheel_circumference = pi * wheel_diameter;
+double inch_per_degree = wheel_circumference/360;
 
-void drive_forward (float inches ) 
+//Start of PID algorithm
+//settings
+double kP = 0.3;
+double kI = 0.2;
+double kD = 0.1;
+double turnkP = 0.3;
+double turnkI = 0.2;
+double turnkD = 0.1;
+
+//autonomous settings
+double desiredValue = 200;
+double desiredTurnValue = 0;
+
+double error; //sensorValue - desiredValue : position
+double prevError = 0; // position 20 msecs ago
+double derivitive; // error - prevError : speed
+double totalError = 0; // totalError = totalError + error
+
+double turnerror; //sensorValue - desiredValue : position
+double turnprevError = 0; // position 20 msecs ago
+double turnderivitive; // error - prevError : speed
+double turntotalError = 0; // totalError = totalError + error
+
+bool resetEncoders = false;
+
+double whlPositionAverage = 0.0;
+
+
+
+//variables modified for use 
+bool enableDrivePID = true;
+
+int drivePID()
 {
-    float inch_per_degree = wheel_circumference/360;
-    float degrees = inches/inch_per_degree;
+    while (enableDrivePID)
+    {
 
-    leftd.spinFor(degrees*gear_ratio, vex::rotationUnits::deg, auton_drive_pct, vex::velocityUnits::pct, false);
-    rightd.spinFor(degrees*gear_ratio, vex::rotationUnits::deg, auton_drive_pct, vex::velocityUnits::pct, false);
+        if (resetEncoders)
+        {
+            resetEncoders = false;
+            leftd.setPosition(0, deg);
+            rightd.setPosition(0, deg);
+        }
+
+
+        //Get position of both encoders
+        double leftWhlPosition = leftEnc.position(deg);
+        double rightWhlPosition = rightEnc.position(deg);
+
+        ///////////////////////////////////
+        // Lateral Movement PID
+        ///////////////////////////////////
+
+        //average of the two motors
+        double whlPositionAverage = (leftWhlPosition + rightWhlPosition) / 2;
+
+        //converting desired value (inches), into degrees needed to turn 
+        double desiredDegrees = (desiredValue/inch_per_degree);
+
+        //potential
+        error = whlPositionAverage - desiredDegrees;
+
+        //derivitive 
+        derivitive = error - prevError;
+
+        //integral (not best for drivetrain)
+        //totalError += error;
+
+        double lateralMotorPower = (error * kP + derivitive * kD) / 12; 
+        // + totalError * kI (for integral, bad for drivetrain but makes the small changes,
+        // helps steady state errors)
+
+        ///////////////////////////////////
+        // Turning Movement PID
+        ///////////////////////////////////
+
+        //average of the two motors
+        double turnDifference = leftWhlPosition - rightWhlPosition;
+
+        //potential
+        turnerror = turnDifference - desiredTurnValue;
+
+        //derivitive 
+        turnderivitive = turnerror - turnprevError;
+
+        //integral
+        //turntotalError += turnerror;
+
+        double turnMotorPower = (turnerror * turnkP + turnderivitive * turnkD) / 12;
+
+
+        ///////////////////////////////////
+        leftd.spin(fwd, lateralMotorPower + turnMotorPower, voltageUnits::volt);
+        rightd.spin(fwd, lateralMotorPower - turnMotorPower, voltageUnits::volt);
     
-    wait(1, sec);
+
+        prevError = error;
+        turnprevError = turnerror;
+
+        vex::task::sleep(20);
+
+    }
+    return 0;
 }
 
-void turn_left (float degrees)
-{
-    rightd.setReversed(true);
-
-    const float wheel_travel_length = ((degrees/360)*2*(3.1415)*(wheel_base_width));
-    const float motor_spin_degrees = (((wheel_travel_length/wheel_circumference)*360)/2);
-
-    leftd.spinFor(motor_spin_degrees, vex::rotationUnits::deg, auton_drive_pct, vex::velocityUnits::pct, false);
-    rightd.spinFor(motor_spin_degrees, vex::rotationUnits::deg, auton_drive_pct, vex::velocityUnits::pct, false);
-
-
-    wait(1, sec);
-
-}
-
-void turn_right (float degrees)
-{
-    rightd.setReversed(true);
-    //Arc Length = (θ/360) x 2πr
-    const float wheel_travel_length = ((degrees/360)*2*(3.1415)*(wheel_base_width));
-    const float motor_spin_degrees = (((wheel_travel_length/wheel_circumference)*360)/2);
-
-    leftd.spinFor(motor_spin_degrees, vex::rotationUnits::deg, auton_drive_pct, vex::velocityUnits::pct, false);
-    rightd.spinFor(motor_spin_degrees, vex::rotationUnits::deg, auton_drive_pct, vex::velocityUnits::pct, false);
-    
-
-    wait(1, sec);
-
-}
 
 
 void autonomous ()
 {
-    drive_forward(0.5*12);
-    drive_forward(-0.5*12);
-    turn_left(90);
-    turn_right(90);
+    vex::task PID(drivePID);
+
+    Brain.Screen.print(whlPositionAverage);
+
+    resetEncoders = true;
+    desiredValue = 3;
+    desiredTurnValue = 6;
+
+    Brain.Screen.print("----");
+    Brain.Screen.print(whlPositionAverage);
 }
 
 // functions for the various User_Controls' code
@@ -197,7 +269,8 @@ int User_Control()
 int whenStarted1()
 {
     
-    Brain.Screen.print("test 10");
+    Brain.Screen.print("test c");
+    Brain.Screen.print("-----");
     
     // call motor settings
     motorSettings();
@@ -205,19 +278,20 @@ int whenStarted1()
     //call autonomous
     autonomous();
 
-    leftd.setReversed(false);
-    rightd.setReversed(true);
 
     // allows for user control by making a continuous loop that will run forever (implement killswitch?)
     while (true)
     {
     
 
-        // call User_Controls
+        //call User_Controls
         User_Control();
 
-        // Allow other tasks to run
+        //Allow other tasks to run
+        vex::wait(20, msec);
     }
+
+    return 0;
 }
 
 // main function that the brain runs to allow the inside code to run
