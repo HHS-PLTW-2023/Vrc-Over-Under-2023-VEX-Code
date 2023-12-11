@@ -162,7 +162,7 @@ int drivePID()
         Rerror = setpointD - rightWhlPosition;
 
         ///////////////////////////////////
-        //Integral (not implemented yet)
+        //Integral (implementing)
         ///////////////////////////////////
         
 
