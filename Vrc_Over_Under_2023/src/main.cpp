@@ -87,27 +87,34 @@ double motorSettings()
     return 0;
 }
 
-const double pi = 3.14159;
-const double wheel_diameter = 4.135;
+const double pi = 3.141592653589793;
+const double wheel_diameter = 4;
 const double wheel_circumference = pi * wheel_diameter;
 double inch_per_degree = wheel_circumference/360;
 
 //Start of PID algorithm
 //settings
-double kP = 0.000003;
+double kP = 0.575;
 double kI = 0.000002;
-double kD = 0.000001;
+double kD = 0.350;
 double turnkP = 0.3;
 double turnkI = 0.2;
 double turnkD = 0.1;
 
 //autonomous settings
+double inches = 0.0;
 double setpoint = 200;
+double setpointD;
 double desiredTurnValue = 0;
 
-double error; //sensorValue - setpoint : position
-double prevError = 0; // position 20 msecs ago
-double derivitive; // error - prevError : speed
+double Lerror; //sensorValue - setpoint : position
+double Rerror; //sensorValue - setpoint : position
+
+double LprevError = 0; // position 20 msecs ago
+double RprevError = 0; // position 20 msecs ago
+
+double Lderivative; 
+double Rderivative;// error - prevError : speed
 double totalError = 0; // totalError = totalError + error
 
 double turnerror; //sensorValue - setpoint : position
@@ -116,8 +123,6 @@ double turnderivitive; // error - prevError : speed
 double turntotalError = 0; // totalError = totalError + error
 
 bool resetEncoders = false;
-
-double whlPositionAverage = 0.0;
 
 
 
@@ -145,51 +150,41 @@ int drivePID()
         // Lateral Movement PID
         ///////////////////////////////////
 
-        //average of the two motors
-        double whlPositionAverage = (leftWhlPosition + (-rightWhlPosition)) / 2;
-
-        //converting desired value (inches), into degrees needed to turn 
-        double desiredDegrees = (setpoint/inch_per_degree);
-
-        //potential
-        error = desiredDegrees - whlPositionAverage;
-
-        //derivitive 
-        derivitive = prevError - error;
-
-        //integral (not best for drivetrain)
-        //totalError = totalError + error;
-
-        double lateralMotorPower = (error * kP + derivitive * kD ) / 12; 
-        // + totalError * kI (for integral, bad for drivetrain but makes the small changes,
-        // helps steady state errors)
+        ///////////////////////////////////
+        //changing setpoint from inches to degrees
+        ///////////////////////////////////
+        setpointD = setpoint/inch_per_degree;
+        
+        ///////////////////////////////////
+        //Proportional
+        ///////////////////////////////////
+        Lerror = setpointD - leftWhlPosition;
+        Rerror = setpointD - rightWhlPosition;
 
         ///////////////////////////////////
-        // Turning Movement PID
+        //Integral (not implemented yet)
         ///////////////////////////////////
-
-        //average of the two motors
-        double turnDifference = leftWhlPosition - rightWhlPosition;
-
-        //potential
-        turnerror = turnDifference - desiredTurnValue;
-
-        //dervitive 
-        turnderivitive = turnerror - turnprevError;
-
-        //integral
-        //turntotalError += turnerror;
-
-        double turnMotorPower = (turnerror * turnkP + turnderivitive * turnkD) / 12;
-
+        
 
         ///////////////////////////////////
-        leftd.spin(fwd, lateralMotorPower + turnMotorPower, voltageUnits::volt);
-        rightd.spin(fwd, lateralMotorPower + turnMotorPower, voltageUnits::volt);
+        // Derivative
+        ///////////////////////////////////
+        Lderivative = LprevError - Lerror;
+        Rderivative = RprevError - Rerror;
+
+        LprevError = Lerror;
+        RprevError = Rerror;
+
+
+        double LlateralMotorPower = ((kP * Lerror) + (kD * Lderivative)) / 12;
+        double RlateralMotorPower = ((kP * Rerror) + (kD * Rderivative)) / 12;
+
+    
+        ///////////////////////////////////
+        leftd.spin(fwd, LlateralMotorPower, voltageUnits::volt);
+        rightd.spin(fwd, RlateralMotorPower, voltageUnits::volt);
     
 
-        prevError = error;
-        turnprevError = turnerror;
 
         vex::task::sleep(20);
 
@@ -202,14 +197,8 @@ int drivePID()
 void autonomous ()
 {
     vex::task PID(drivePID);
-
-    Brain.Screen.print(whlPositionAverage);
-
     resetEncoders = true;
-    setpoint = 60;
-
-    Brain.Screen.print("----");
-    Brain.Screen.print(whlPositionAverage);
+    setpoint = 12;
 }
 
 // functions for the various User_Controls' code
@@ -268,7 +257,7 @@ int User_Control()
 int whenStarted1()
 {
     
-    Brain.Screen.print("test PID.00.2");
+    Brain.Screen.print("test PID.00.5");
     Brain.Screen.print("-----");
     
     // call motor settings
