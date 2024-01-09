@@ -66,11 +66,11 @@ double motorSettings()
 {
     //drivetrain
     leftd.setMaxTorque(100, pct);
-    leftd.setVelocity(25, pct);
+    leftd.setVelocity(20, pct);
     leftd.setBrake(hold);
 
     rightd.setMaxTorque(100, pct);
-    rightd.setVelocity(25, pct);
+    rightd.setVelocity(20, pct);
     rightd.setBrake(hold);
     
 
@@ -91,11 +91,11 @@ double motorSettings()
 }
 
 const double pi = 3.141592653589793;
-const double wheel_diameter = 5;
+const double wheel_diameter = 4;
 const double wheel_circumference = pi * wheel_diameter;
-const double wheel_base_diameter = 14.212670403551895;
-double inch_per_degree = wheel_circumference/360;
-const double turn_inch_per_degree = (wheel_base_diameter * pi) / 360;
+const double wheel_base_diameter = 13.1244047484067;
+const double inch_per_degree = wheel_circumference/360;
+const double turn_inch_per_degree = 360 / (wheel_base_diameter * pi);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Start of PID algorithm
@@ -250,7 +250,7 @@ void autonomous ()
     vex::task PID(drivePID);
     resetEncoders = true;
     setpoint = 12 * 0.5;
-    turnSetpoint = 12 * 0.5;
+    turnSetpoint = 90;
 }
 
 // functions for the various User_Controls' code
@@ -300,8 +300,8 @@ int User_Control()
     }
 
     // Drivetrain Code
-    leftd.spin(fwd, (controller1.Axis3.value() + (controller1.Axis1.value()*2)/2.5), pct);
-    rightd.spin(fwd, (controller1.Axis3.value() - (controller1.Axis1.value()*2)/2.5), pct);
+    leftd.spin(fwd, (controller1.Axis3.value() - (controller1.Axis1.value()*1.5)), pct);
+    rightd.spin(fwd, (controller1.Axis3.value() + (controller1.Axis1.value()*1.5), pct);
 
     //"shifter" code
     
@@ -312,7 +312,7 @@ int User_Control()
 int whenStarted1()
 {
     
-    Brain.Screen.print("test PID.02.8");
+    Brain.Screen.print("test drivetrain #2");
     Brain.Screen.print("-----");
     
     // call motor settings
